@@ -1,33 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Payment } from './entities/payment.entity';
 import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { ProductsService } from '../products/products.service';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
+    private readonly productsService: ProductsService, 
+  ) {}
 
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
+  async create(createPaymentDto: CreatePaymentDto, createBy: string): Promise<Payment> {
+    const productExists = await this.productsService.findOne(createPaymentDto.productid);
+    if (!productExists) {
+      throw new NotFoundException(`Product with ID ${createPaymentDto.productid} does not exist.`);
+    }
+
+    const payment = this.paymentRepository.create({
+      ...createPaymentDto,
+      createDate: new Date(), 
+      createBy, 
+    });
+
+    return this.paymentRepository.save(payment);
   }
 
-   findAll() {
-    const allProduct =  this.productsService.findAll();
-    return {
-      invoiceno: 'INVOICE/1',
-      product: allProduct,
-    };
+  
+  async findAll(): Promise<any[]> {
+    const payments = await this.paymentRepository.find({
+      relations: ['product'],
+      select: ['id', 'supplier', 'productid', 'amount', 'createDate', 'createBy'],
+    });
+  
+    return payments.map(payment => ({
+      id: payment.id,
+      supplier: payment.supplier,
+      productid: payment.productid,
+      amount: payment.amount,
+      createDate: payment.createDate,
+      createBy: payment.createBy,
+      product_name: payment.product?.name, // Mengakses nama produk dari relasi
+    }));
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
-  }
-
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
-  }
+  
+  
+  
 }

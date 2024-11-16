@@ -35,10 +35,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config, {
     include: [AuthModule, ProductsModule, PaymentsModule],
   });
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
-  console.log(`API swagger running on http://localhost:${process.env.PORT ?? 3000}/api-docs`);
+  console.log(`API swagger running on http://localhost:${process.env.PORT ?? 3000}/api`);
 }
 
 bootstrap();

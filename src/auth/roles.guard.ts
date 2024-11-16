@@ -18,8 +18,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const roles = this.reflector.get<string[]>('roles', context.getHandler());
-    //console.log('Roles yang diperlukan:', roles); 
-
+   
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
@@ -27,11 +26,9 @@ export class RolesGuard implements CanActivate {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    console.log('Role pengguna:', user.role); 
-
+   
     const hasRole = roles.some(role => user.role === role);
-    //console.log('Has role:', hasRole); 
-
+   
     if (!hasRole) {
       throw new ForbiddenException('Forbidden');
     }

@@ -1,10 +1,9 @@
-// products.controller.ts
-import { Controller, Get, Post, Body, Put, Param, Delete, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Request, UseGuards, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Roles } from '../auth/roles.decorator';
 import { AuthorGuard } from '../auth/author.guard';
 
@@ -27,8 +26,11 @@ export class ProductsController {
   @Roles('admin', 'user')
   @ApiOperation({ summary: 'Cari semua produk' })
   @ApiResponse({ status: 200, description: 'Berhasil mengambil semua produk.' })
-  async findAll(): Promise<Product[]> {
-    return this.productsService.findAll();
+  @ApiQuery({ name: 'name', required: false, description: 'Nama produk untuk dicari' }) //optional aja
+  async findAll(
+    @Query('name') name?: string,
+  ): Promise<Product[]> {
+    return this.productsService.findAll(name);
   }
 
   @Get(':id')

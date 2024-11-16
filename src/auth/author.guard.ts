@@ -11,7 +11,6 @@ export class AuthorGuard implements CanActivate {
     const user = request.user;
     const productId = +request.params.id;
 
-    // Cek apakah produk tersebut dibuat oleh user yang login
     const product = await this.productsService.findOne(productId);
     if (!product) {
       throw new ForbiddenException('Produk tidak ditemukan');

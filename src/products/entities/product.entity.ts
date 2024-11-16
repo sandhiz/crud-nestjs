@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Payment } from '../../payments/entities/payment.entity';
 
 @Entity('products')
 export class Product {
@@ -11,9 +12,13 @@ export class Product {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ type: 'datetime' })
-  createDate: Date;
-
+ 
   @Column()
   createBy: string;
+
+  @Column({ type: 'datetime' })
+  createDate: Date;
+  
+  @OneToMany(() => Payment, (payment) => payment.product)
+  payments: Payment[];
 }

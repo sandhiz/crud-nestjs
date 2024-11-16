@@ -1,9 +1,9 @@
-// payments.controller.ts
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Request, UseGuards } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Roles } from '../auth/roles.decorator';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Payment } from './entities/payment.entity';
 
 @Controller('payments')
 @ApiTags('payments')
@@ -15,15 +15,16 @@ export class PaymentsController {
   @Roles('accounting')
   @ApiOperation({ summary: 'Tambah Payment' })
   @ApiResponse({ status: 201, description: 'Payment berhasil ditambah.' })
-  create(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentsService.create(createPaymentDto);
+  async create(@Body() createPaymentDto: CreatePaymentDto, @Request() req): Promise<Payment> {
+    const username = req.user.username;
+    return this.paymentsService.create(createPaymentDto, username);
   }
 
   @Get()
   @Roles('admin', 'accounting')
-  @ApiOperation({ summary: 'cari Payment' })
-  @ApiResponse({ status: 200, description: 'Payment berhasil di tampilkan.' })
-  findAll() {
-    return this.paymentsService.findAll();
+  @ApiOperation({ summary: 'Cari semua Payment' })
+  @ApiResponse({ status: 200, description: 'Payment berhasil ditampilkan.' })
+  async findAll(): Promise<Payment[]> {
+    return this.paymentsService.findAll(); 
   }
 }

@@ -21,9 +21,17 @@ export class ProductsService {
     return this.productRepository.save(product);
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productRepository.find();
+  async findAll(name?: string): Promise<Product[]> {
+    const query = this.productRepository.createQueryBuilder('products');
+  
+    if (name) {
+      query.andWhere('products.name LIKE :name', { name: `%${name}%` });
+    }
+  
+    return await query.getMany();
   }
+  
+  
 
   async findOne(id: number): Promise<Product> {
     const product = await this.productRepository.findOneBy({ id });
